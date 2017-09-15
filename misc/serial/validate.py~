@@ -1,0 +1,7 @@
+while(True):
+
+    input = raw_input()
+    
+    print input
+    
+    print input[1:len(input)-1]
