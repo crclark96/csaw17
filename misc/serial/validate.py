@@ -1,24 +1,28 @@
-import sys, socket
+import sys, socket, time
 
+flag = ""
 f = open('bytestream','w')
 
 def validate(data):
+
+    global flag
+    
+    assert data[0] == '0'
+    assert data[-2] == '1'
     print repr(data), " | ",
-    data = str(data)[1:len(data)-2]# trim data
+    
+    data = str(data)[1:-2]# trim data
     tot = 0
-    for char in data:
-        tot += int(char)
-    data = data[1:]
-    print repr(data), " | ",
-    if tot % 2 == 0:
-        sum = 0
-        for i in range(8):
-            sum += 2**i * int(data[i])
-        print(chr(sum))
-        f.write(chr(sum))
-    else:
-        print 
-    return tot % 2 == 0
+    parity = int(data[-1])
+    c_bits = data[:-1]
+    print repr(c_bits), " | ",
+    valid = c_bits.count('1') % 2 == parity
+    print valid, " | ", 
+    print chr(int(c_bits,2))
+    if (valid):
+        flag += chr(int(c_bits,2))
+    return valid
+    
 
 def netcat(host, port):
     s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -39,7 +43,9 @@ def netcat(host, port):
     
     s.shutdown(socket.SHUT_WR)
     s.close()
-    
 
-netcat('misc.chal.csaw.io', 4239)
+    print flag
+    
+    
+netcat('18.218.208.4', 8000)
 print '\n'
